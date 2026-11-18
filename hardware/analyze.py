@@ -136,6 +136,12 @@ for pol in sorted(pol_recs):
             V[te, :, j] = chi[te, :, j] * w
             M1[te, j] = (q_te[j, L[te, j]] * lam_te[j, L[te, j]] * lam_tr[j, L[te, j]]).sum(1)
     out = {}
+    # bootstrap draws over circuits, shared by all w; marginals nu re-estimated in each draw so that the intervals of
+    # log2 A_w include the uncertainty of the single-site factors as well as that of R_w
+    BOOT = [rng.integers(C, size=C) for _ in range(a.B)]
+    NUB = []
+    for ci in BOOT:
+        _, _, Gb = lam_tables(ci); NUB.append({j: float(np.exp(np.nanmean(np.log(Gb[j, 1:])))) for j in act})
     print(f"\n{pol}: {C} circuits x {T} shots; per-site nu (marginal): " + " ".join(f"{v:.3f}" for v in nu.values()))
     print(f"   w   subsets   R_w (factorization) [95%]      log2 A_w (joint) [95%]     marginal-only log2 A_w")
     for w in range(1, N + 1):
@@ -144,11 +150,12 @@ for pol in sorted(pol_recs):
         YS = np.array([np.prod(V[:, :, list(S)], axis=2).mean(1) for S in subs])      # n_sub x C
         MS = np.array([np.prod(M1[:, list(S)], axis=1) for S in subs])
         base = np.array([sum(np.log2(2 * nu[j]) for j in S) for S in subs])
-        def stat(ci):
+        def stat(ci, nub):
             R = YS[:, ci].sum(1) / MS[:, ci].sum(1)
-            return float(R.mean()), float(np.mean(base + np.log2(np.maximum(R, 1e-9))))
-        R0, A0 = stat(allidx)
-        bt = np.array([stat(rng.integers(C, size=C)) for _ in range(a.B)])
+            bb = np.array([sum(np.log2(2 * nub[j]) for j in S) for S in subs])
+            return float(R.mean()), float(np.mean(bb + np.log2(np.maximum(R, 1e-9))))
+        R0, A0 = stat(allidx, nu)
+        bt = np.array([stat(ci, nub) for ci, nub in zip(BOOT, NUB)])
         Am = float(np.mean([sum(np.log2(2 * nu[j]) for j in S) for S in subs]))
         rl, rh = np.percentile(bt[:, 0], [2.5, 97.5]); al, ah = np.percentile(bt[:, 1], [2.5, 97.5])
         out[w] = dict(R=R0, R_ci=[rl, rh], log2A=A0, log2A_ci=[al, ah], log2A_marg=Am, n_subsets=len(subs))

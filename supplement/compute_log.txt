@@ -1,0 +1,25 @@
+A done; model rms z 1.9248816931534083
+baseline                     a*_joint 0.746  a*_model 0.757  R_last(a=1) 1.011 [0.989,1.034]
+no frame alignment           a*_joint 0.751  a*_model 0.757  R_last(a=1) 1.011 [0.989,1.034]
+no cross-fitting             a*_joint 0.746  a*_model 0.757  R_last(a=1) 1.011 [0.989,1.033]
+leave out site 0             a*_joint 0.751  a*_model 0.765  R_last(a=1) 1.009 [0.992,1.030]
+leave out site 1             a*_joint 0.756  a*_model 0.768  R_last(a=1) 1.011 [0.994,1.032]
+leave out site 2             a*_joint 0.744  a*_model 0.755  R_last(a=1) 1.010 [0.996,1.026]
+leave out site 3             a*_joint 0.752  a*_model 0.764  R_last(a=1) 1.008 [0.992,1.026]
+leave out site 4             a*_joint 0.740  a*_model 0.750  R_last(a=1) 1.013 [0.998,1.027]
+leave out site 5             a*_joint 0.735  a*_model 0.742  R_last(a=1) 1.008 [0.994,1.025]
+leave out site 6             a*_joint 0.742  a*_model 0.751  R_last(a=1) 1.009 [0.995,1.029]
+leave out site 7             a*_joint 0.743  a*_model 0.756  R_last(a=1) 1.006 [0.990,1.025]
+leave out site 8             a*_joint 0.754  a*_model 0.758  R_last(a=1) 1.010 [0.995,1.026]
+first half (submission order) a*_joint 0.741  a*_model 0.756  R_last(a=1) 1.012 [0.983,1.037]
+second half (submission order) a*_joint 0.756  a*_model 0.757  R_last(a=1) 1.010 [0.977,1.037]
+subset/half seed 1           a*_joint 0.748  a*_model 0.757  R_last(a=1) 1.011 [0.990,1.032]
+subset/half seed 2           a*_joint 0.748  a*_model 0.757  R_last(a=1) 1.010 [0.990,1.028]
+subset/half seed 3           a*_joint 0.746  a*_model 0.757  R_last(a=1) 1.011 [0.991,1.033]
+subset/half seed 4           a*_joint 0.748  a*_model 0.757  R_last(a=1) 1.011 [0.988,1.027]
+subset/half seed 5           a*_joint 0.746  a*_model 0.757  R_last(a=1) 1.011 [0.992,1.033]
+subset/half seed 6           a*_joint 0.749  a*_model 0.757  R_last(a=1) 1.011 [0.989,1.027]
+126 subsets per w            a*_joint 0.747  a*_model 0.757  R_last(a=1) 1.011 [0.992,1.033]
+MS_origin_code_raw done
+MS_origin_code_ro done
+saved supp_results.json

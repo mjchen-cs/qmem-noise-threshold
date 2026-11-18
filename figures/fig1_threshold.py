@@ -4,7 +4,7 @@ Hardware crossings are those reported in the paper (fig3_code.py and the slope i
 import os
 import numpy as np, matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-fig, ax = plt.subplots(1, 2, figsize=(10.2, 4.3), gridspec_kw=dict(width_ratios=[1.05, 1]))
+fig, ax = plt.subplots(1, 2, figsize=(10.2, 4.3), gridspec_kw=dict(width_ratios=[1.05, 0.8]))
 a = ax[0]; L = np.linspace(0, 1, 400)
 X, Z = np.meshgrid(L, L)
 notch = X > (1 + Z) / 2
@@ -38,13 +38,14 @@ rows = [("fundamental limit (conjecture)", 0.0, None, "k"),
         ("hardware Bell, memory level", 0.626, (0.614, 0.638), "#3b6fb6"),
         ("hardware 3-qubit code, memory level", 0.536, (0.524, 0.547), "#c4452c"),
         ("hardware 3-qubit code, end to end", 0.741, (0.732, 0.750), "#c4452c")]
+labels = []
 for i, (t, x, ci, c) in enumerate(rows):
-    y = len(rows) - i
+    y = len(rows) - i; labels.append((y, t))
     b.plot([x], [y], "o" if "hardware" in t else ("s" if "ideal" in t else "*"), color=c, ms=7 if "fund" not in t else 11,
            mfc=c if "memory" not in t else "white")
     if ci: b.plot(ci, [y, y], color=c, lw=2)
-    b.text(x + 0.025 if x < 0.7 else x - 0.025, y + 0.18, t, fontsize=7.5, ha="left" if x < 0.7 else "right")
-b.set_yticks([]); b.set_xlim(-0.03, 0.9); b.set_ylim(0.3, len(rows) + 0.8)
+b.set_yticks([y for y, _ in labels]); b.set_yticklabels([t for _, t in labels], fontsize=8)
+b.set_xlim(-0.03, 0.85); b.set_ylim(0.4, len(rows) + 0.6); b.grid(axis="y", color="0.92", lw=0.6)
 b.set_xlabel(r"crossing $a^*$ ($\nu=1/2$) on the family $\lambda=(a,a,1)$")
 b.set_title("(b) where the advantage stops growing", fontsize=10)
 b.axvspan(-0.03, 0.0, color="0.85")

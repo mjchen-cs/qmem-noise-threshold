@@ -63,6 +63,9 @@ python run.py --step MS --mode origin --paths 94-104,92-102,119-128,131-141,129-
 `fig1_threshold.py`, `fig2_scaling.py` (needs `data/MS_summary_origin_pairs_raw.json` from `analyze.py`),
 `fig3_code.py` (needs the two `*_mitigate.json` files from `mitigate.py`).
 
+Extended Data figures: `ed1_kmax.py`, `ed2_stabilizer.py`, `ed3_codes.py` (theory) and `ed_hardware.py`
+(Extended Data Figs. 4–8, reads the deposited data).
+
 ## License
 
 MIT (see `LICENSE`).
