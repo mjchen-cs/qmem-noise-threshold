@@ -1,8 +1,12 @@
-# A noise threshold for the quantum-memory advantage in learning
+# Sharp noise threshold for learning with quantum memory
 
-Code for the paper *A noise threshold for the quantum-memory advantage in learning*:
+Code for the paper *Sharp noise threshold for learning with quantum memory*:
 theory and numerics for the threshold $\lambda_X^2+\lambda_Y^2+\lambda_Z^2=1$, the experiments on the
-Wukong 180 superconducting processor, their analysis, and the figures. Raw data: see [`data/README.md`](data/README.md).
+Wukong 180 superconducting processor, their analysis, and the figures. Raw data: https://figshare.com/s/113a67455bf9eacda354 (see [`data/README.md`](data/README.md)).
+
+```
+git clone https://github.com/mjchen-cs/qmem-noise-threshold.git
+```
 
 ```
 pip install -r requirements.txt

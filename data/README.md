@@ -1,6 +1,6 @@
 # Data
 
-The raw data are deposited on Figshare: **[DOI / private reviewer link to be added]**. Download them into this
+The raw data are deposited on Figshare: https://figshare.com/s/113a67455bf9eacda354 . Download them into this
 folder (or set the environment variable `DATA_DIR`). Every experiment folder contains
 
 * `manifest.json` – qubit layout (`layout.physical`, `system`, `m0`, `syndrome3`), and one record per circuit
