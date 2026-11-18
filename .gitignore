@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+data/*/
+data/*.json
+figures/*.pdf
+figures/*.png
+figures/*_numbers.json
