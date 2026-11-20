@@ -9,6 +9,7 @@ Usage: python ed_hardware.py [ed4 ed5 ...]   (default: all)"""
 import os, sys, json
 import numpy as np
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+import nstyle  # Nature-style formatting (figures/nstyle.py)
 HERE = os.path.dirname(os.path.abspath(__file__)); DATA = os.environ.get("DATA_DIR", os.path.join(HERE, "..", "data"))
 J = lambda *p: json.load(open(os.path.join(DATA, *p)))
 save = lambda fig, n: (fig.tight_layout(), fig.savefig(os.path.join(HERE, n + ".pdf")), fig.savefig(os.path.join(HERE, n + ".png"), dpi=150))

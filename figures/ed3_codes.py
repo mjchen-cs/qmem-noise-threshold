@@ -5,6 +5,7 @@ memories under depolarizing noise, versus the fidelity eta. Crossing of 1/2: thr
 import os, sys
 import numpy as np
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+import nstyle  # Nature-style formatting (figures/nstyle.py)
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.join(HERE, "..", "theory"))
 from code_thresholds import code_lib, logicals, figures
 C = code_lib(); show = ["[[4,2,2]]", "[[6,4,2]]", "[[12,10,2]]", "[[7,1,3]]", "[[15,7,3]]", "[[31,21,3]]", "[[16,6,4]]", "[[32,20,4]]", "[[64,50,4]]"]

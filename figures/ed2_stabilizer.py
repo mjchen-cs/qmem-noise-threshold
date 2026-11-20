@@ -6,6 +6,7 @@ syndrome-conditioned value 2^k sum_L P(L|e)^2. Uses theory/stabilizer_K.py."""
 import os, sys, json
 import numpy as np, stim
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+import nstyle  # Nature-style formatting (figures/nstyle.py)
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.join(HERE, "..", "theory"))
 from stabilizer_K import pvec, symp, code_from_tableau, K_code, joint_table
 rng = np.random.default_rng(5); NC = int(os.environ.get("NCODES", 300))

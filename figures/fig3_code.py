@@ -8,6 +8,7 @@ parametric-bootstrap 95% intervals."""
 import os, json
 import numpy as np
 import matplotlib; matplotlib.use("Agg")
+import nstyle  # Nature-style formatting (figures/nstyle.py)
 import matplotlib.pyplot as plt
 HERE = os.path.dirname(os.path.abspath(__file__)); RUNS = os.environ.get("DATA_DIR", os.path.join(HERE, "..", "data"))
 # inputs from: python ../hardware/mitigate.py --run MS_origin_code_raw --ro RO_origin_ro ; python ../hardware/mitigate.py --run MS_origin_code_ro

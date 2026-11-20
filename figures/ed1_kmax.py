@@ -6,6 +6,7 @@ import os, sys, json
 import numpy as np
 from scipy.optimize import minimize
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+import nstyle  # Nature-style formatting (figures/nstyle.py)
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.join(HERE, "..", "theory"))
 from maximize_K import setup, K_of_W
 from kfunction import pauli_probs

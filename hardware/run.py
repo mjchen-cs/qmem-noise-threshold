@@ -4,7 +4,8 @@
 Every site is a chain s-m1[-m2-m3] of physical qubits (system qubit s; memory m1, or the repetition code m1 m2 m3).
 In every circuit each active site independently draws a letter X/Y/Z, a Pauli twirl on s from the commutant of the
 letter (this realizes the hidden channel of the learning task on s), and a Pauli error on each memory qubit from the
-dephasing channel lambda = (a, a, 1). Encoder, injected errors and decoder are applied per site; all qubits are
+channel lambda chosen by --ch (families: dz (t, t, 1) dephasing, dp (t, t, t) depolarizing, zs / zh / zm (t, t, 0.98 / 0.95 /
+0.90) biased dephasing; the noiseless reference is always dz100) or, for compatibility, the dephasing points --a. Encoder, injected errors and decoder are applied per site; all qubits are
 measured. Settings (noise levels, memories) are shuffled together so that they share the processor's drift.
 
 Steps
@@ -17,6 +18,9 @@ Examples
   python run.py --fetch_chip
   python run.py --step MS --paths 94-104,92-102 --kinds bare --a 1.00,0.40,0.80 --circ 4000 --shots 40 --tag _pairs_raw
   python run.py --step MS --paths 111-120-129-138 --kinds bare,rep3 --a 1.00,0.56,0.60 --ro 300 --tag _code_ro
+  python run.py --step MS --paths 94-104,92-102 --kinds bare --ch dz100,dz20,dp55,dp82 --circ 4000 --tag _phase --batch 200
+  python run.py --step MS --paths 111-120-129-138 --kinds bare,rep3 --ch dz100,zh50,zh58,zm58 --ro 150 --tag _bias --batch 200
+  python run.py --step MS --paths 111-120-129-138 --kinds bare,bareF,rep3 --ch dz100,dz50,dz56,dz62,dz68,dz74 --ro 150 --tag _frame --batch 200
   (add --mode dryrun to rehearse offline)"""
 import os, sys, json, time, argparse
 import numpy as np
@@ -32,6 +36,25 @@ def pauli_probs(lam):
     return q / q.sum()
 
 
+FAMILIES = {"dz": lambda t: (t, t, 1.0), "dp": lambda t: (t, t, t), "zs": lambda t: (t, t, 0.98),
+            "zh": lambda t: (t, t, 0.95), "zm": lambda t: (t, t, 0.90)}
+
+
+def channels(a):
+    """{code: lambda}; codes <family><100 t>, e.g. dz100, dp82, zh58."""
+    if a.ch:
+        out = {}
+        for c in a.ch.split(","):
+            c = c.strip(); fam, val = c[:2], int(c[2:])
+            if fam not in FAMILIES: raise SystemExit(f"unknown channel family: {c}")
+            lam = FAMILIES[fam](val / 100); lx, ly, lz = lam
+            if min((1 + lx + ly + lz), (1 + lx - ly - lz), (1 - lx + ly - lz), (1 - lx - ly + lz)) < -1e-9:
+                raise SystemExit(f"{c} = {lam} is not a valid Pauli channel")
+            out[c] = lam
+        return out
+    return {f"dz{int(round(100 * x)):02d}": (x, x, 1.0) for x in (float(v) for v in a.a.split(","))}
+
+
 def build(a, rng):
     paths = [[int(q) for q in t.split("-")] for t in a.paths.split(",")]
     N = len(paths); Ls = [len(p) for p in paths]; off = [int(sum(Ls[:j])) for j in range(N)]; nq = sum(Ls)
@@ -41,7 +64,7 @@ def build(a, rng):
     lay = dict(paths=paths, physical=[q for p in paths for q in p], system=[off[j] for j in range(N)],
                m0=[off[j] + 1 for j in range(N)],
                syndrome3=[[off[j] + 2, off[j] + 3] if Ls[j] == 4 else [] for j in range(N)],
-               memory_bare=[[off[j] + 1] for j in range(N)],
+               memory_bare=[[off[j] + 1] for j in range(N)], memory_bareF=[[off[j] + 1] for j in range(N)],
                memory_rep3=[[off[j] + 1, off[j] + 2, off[j] + 3] if Ls[j] == 4 else [] for j in range(N)])
     blocks = [[off[j] + t for t in range(Ls[j])] for j in range(N)]
     shift = lambda ops, o: [(g, tuple(q + o for q in qs), tuple(p)) for g, qs, p in ops]
@@ -52,22 +75,28 @@ def build(a, rng):
                 recs.append(dict(key=f"RO_{b}_{r}", nq=nq, kind="readout", P=[b] * nq, shots=a.shots,
                                  ops=[("X", (q,), ()) for q in range(nq)] if b else [], meta=dict(rep=r, policy=f"ro{b}", active=[])))
         return lay, recs
-    avals = [float(v) for v in a.a.split(",")]
+    chans = channels(a)
+    # bareF: Bell pair in the best memory frame (U before storage, U^dag after, U^dag Z U = (X+Y+Z)/sqrt3)
+    th, ph = float(np.arccos(1 / np.sqrt(3))), float(np.pi / 4)
+    FRAME_U, FRAME_UD = [("RZ", (1,), (-ph,)), ("RY", (1,), (-th,))], [("RY", (1,), (th,)), ("RZ", (1,), (ph,))]
+    ENC = dict(ENCODERS, bareF=ENCODERS["bare"])
     active = [list(range(N))] if a.step == "MS" else [[j] for j in range(N)]
     for kind in kinds:
-        for a_ in avals:
-            pol = f"{kind}_dz{int(round(100 * a_)):02d}"; pp = pauli_probs((a_, a_, 1.0))
+        for code, lam in chans.items():
+            pol = f"{kind}_{code}"; pp = pauli_probs(lam)
             for act in active:
                 for r in range(a.circ):
                     P = [0] * N; ops = []
                     for j in act:
                         P[j] = int(rng.integers(1, 4))
-                        ops += shift(ENCODERS[kind], off[j])
+                        ops += shift(ENC[kind], off[j])
+                        if kind == "bareF": ops += shift(FRAME_U, off[j])
                         ops += pauli_ops(sample_commutant([P[j]], rng), [off[j]])
                         mem = lay["memory_" + kind][j]
                         ops += pauli_ops([int(rng.choice(4, p=pp)) for _ in mem], mem)
                     for j in act:
-                        ops += list(reversed(shift(ENCODERS[kind], off[j])))
+                        if kind == "bareF": ops += shift(FRAME_UD, off[j])
+                        ops += list(reversed(shift(ENC[kind], off[j])))
                     tag = "" if a.step == "MS" else f"i{act[0]}_"
                     recs.append(dict(key=f"{a.step}_{pol}_{tag}{r}", nq=nq, kind="quantum", P=P, ops=ops, shots=a.shots,
                                      meta=dict(rep=r, policy=pol, blocks=blocks, active=act)))
@@ -83,7 +112,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--step", choices=["MS", "MSI", "RO"]); ap.add_argument("--mode", choices=["dryrun", "origin"], default="dryrun")
     ap.add_argument("--paths", help="sites as s-m1[-m2-m3], comma separated (physical qubits)")
-    ap.add_argument("--kinds", default="bare", help="bare and/or rep3"); ap.add_argument("--a", default="1.00,0.80", help="dephasing parameters a")
+    ap.add_argument("--kinds", default="bare", help="bare, bareF (best memory frame) and/or rep3"); ap.add_argument("--a", default="1.00,0.80", help="dephasing parameters a")
+    ap.add_argument("--ch", default="", help="channel codes, e.g. dz100,dp82,zh58 (overrides --a)")
     ap.add_argument("--circ", type=int, default=4000); ap.add_argument("--shots", type=int, default=40)
     ap.add_argument("--ro", type=int, default=0, help="interleaved readout-calibration circuits per state (RO: number per state)")
     ap.add_argument("--tag", default=""); ap.add_argument("--batch", type=int, default=150); ap.add_argument("--seed", type=int, default=7)

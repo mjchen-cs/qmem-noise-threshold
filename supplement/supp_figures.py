@@ -5,9 +5,9 @@ import os, json, glob
 import numpy as np
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import sys as _s; _s.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "figures")); import nstyle  # Nature style
 HERE = os.path.dirname(os.path.abspath(__file__)); DATA = os.environ.get("DATA_DIR", os.path.join(HERE, "..", "data"))
 R = json.load(open(os.path.join(HERE, "supp_results.json")))
-plt.rcParams.update({"font.size": 8.5, "axes.titlesize": 9, "axes.titlelocation": "left"})
 OUT = os.path.join(HERE, "figs"); os.makedirs(OUT, exist_ok=True)
 def save(fig, name):
     fig.tight_layout(); fig.savefig(os.path.join(OUT, name + ".pdf")); fig.savefig(os.path.join(OUT, name + ".png"), dpi=170); plt.close(fig)

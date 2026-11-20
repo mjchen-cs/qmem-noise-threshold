@@ -7,6 +7,7 @@
 import os, json
 import numpy as np
 import matplotlib; matplotlib.use("Agg")
+import nstyle  # Nature-style formatting (figures/nstyle.py)
 import matplotlib.pyplot as plt
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.environ.get("DATA_DIR", os.path.join(HERE, "..", "data"))
@@ -30,7 +31,7 @@ for i, a in enumerate(A):
     slope = np.polyfit(w, y, 1, w=1 / np.maximum(hi - lo, 1e-3))[0]
     out[a] = dict(slope_joint=float(slope), slope_marg=float(np.mean(np.log2(2 * nu))), log2A9=float(y[-1]), ci9=[float(lo[-1]), float(hi[-1])])
 ax[0].axhline(0, color="k", lw=0.8); ax[0].set_ylim(-11, 4); ax[0].set_xlabel("number of sites w"); ax[0].set_ylabel(r"$\log_2 A_w$ (quantum / classical limit)")
-ax[0].set_title("(a) joint advantage vs system size"); ax[0].legend(fontsize=7, ncol=2)
+ax[0].set_title("(a) joint advantage vs system size"); ax[0].legend(fontsize=6, ncol=2, loc="lower left", columnspacing=0.8, handlelength=1.0, borderaxespad=0.2)
 aa = np.linspace(0.35, 1.0, 200)
 for v in cal: ax[1].plot(aa, v * aa ** (4 / 3), color="0.75", lw=0.7)
 ax[1].plot(aa, np.exp(np.mean(np.log(cal))) * aa ** (4 / 3), "k-", lw=1.5, label=r"model $\nu_j(1)\,a^{4/3}$ (no fit)")
